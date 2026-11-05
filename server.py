@@ -62,10 +62,10 @@ HTML = r"""<!doctype html>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="theme-color" content="#092b43">
 <meta name="description"
-      content="Il portale parodico degli amici: segnalazioni e notizie del gruppo.">
+      content="Portale per le segnalazioni e le comunicazioni del gruppo.">
 <meta property="og:title" content="Ministero della Verità">
 <meta property="og:description"
-      content="Segnalazioni e notizie dal gruppo. Progetto privato e parodico.">
+      content="Segnalazioni, comunicazioni e aggiornamenti del gruppo.">
 <title>Ministero della Verità</title>
 <link rel="stylesheet" href="/style.css">
 <script src="/app.js" defer></script>
@@ -73,7 +73,7 @@ HTML = r"""<!doctype html>
 
 <body>
 <div class="notice">
-  ★ Progetto privato tra amici · Parodia non affiliata a enti governativi
+  Portale privato · Non affiliato a enti governativi
 </div>
 
 <header>
@@ -89,7 +89,7 @@ HTML = r"""<!doctype html>
 
 <nav aria-label="Navigazione principale">
   <a href="#segnalazioni">Segnalazioni</a>
-  <a href="#notizie">Sala stampa</a>
+  <a href="#sala-stampa" id="open-news" aria-haspopup="dialog">Sala stampa</a>
   <a href="#informazioni">Il progetto</a>
   <button id="open-admin">Accesso redazione</button>
 </nav>
@@ -98,10 +98,10 @@ HTML = r"""<!doctype html>
   <section class="hero">
     <div>
       <div class="eyebrow">IL PORTALE DEL GRUPPO</div>
-      <h1>La verità.<br>Prima o poi,<br><em>viene a galla.</em></h1>
+      <h1>Segnalazioni.<br>Ascolto.<br><em>Responsabilità.</em></h1>
       <p>
-        Piccole mancanze, grandi racconti.
-        Uno spazio per dire la propria, con ironia e rispetto.
+        Uno spazio dedicato alla raccolta delle segnalazioni
+        e alle comunicazioni del gruppo, con serietà e rispetto.
       </p>
       <a href="#scrivi" class="gold">Invia una segnalazione →</a>
       <small>Nessun nome autore richiesto · Nessuna registrazione</small>
@@ -125,7 +125,7 @@ HTML = r"""<!doctype html>
     </div>
 
     <p class="muted">
-      Ogni storia ha un protagonista. Seleziona un nome per filtrare.
+      Consulta le segnalazioni e seleziona una persona per filtrare i risultati.
     </p>
 
     <div id="filters" class="filters"
@@ -143,7 +143,7 @@ HTML = r"""<!doctype html>
 
       <aside id="scrivi">
         <div class="eyebrow">SPORTELLO DIGITALE</div>
-        <h3>Hai qualcosa da dire?</h3>
+        <h3>Invia una segnalazione</h3>
         <p class="muted">
           Racconta un episodio. Il nome dell’autore non viene richiesto.
         </p>
@@ -178,26 +178,15 @@ HTML = r"""<!doctype html>
     </div>
   </section>
 
-  <section id="notizie" class="news-section">
-    <div class="section">
-      <div class="eyebrow">COMUNICAZIONI DAL GRUPPO</div>
-      <h2>La sala stampa</h2>
-      <p class="muted">
-        Notizie, comunicati e aggiornamenti con testo e immagini.
-      </p>
-      <div id="news" class="news-grid" aria-live="polite"></div>
-    </div>
-  </section>
-
   <section id="informazioni" class="section about">
     <div>
       <div class="eyebrow">TRASPARENZA PRIMA DI TUTTO</div>
-      <h2>Un ministero.<br>Molto poco ufficiale.</h2>
+      <h2>Finalità del portale</h2>
     </div>
     <div>
       <p>
-        Questo è uno spazio privato e parodico del gruppo.
-        Non è collegato a enti pubblici o al governo degli Stati Uniti.
+        Il portale raccoglie segnalazioni e comunicazioni del gruppo.
+        È un servizio privato, non affiliato a enti pubblici.
       </p>
       <p>
         Le nuove segnalazioni e le notizie compaiono automaticamente
@@ -210,8 +199,22 @@ HTML = r"""<!doctype html>
 
 <footer>
   MINISTERO DELLA VERITÀ
-  <small>Le istituzioni passano. Il gruppo resta.</small>
+  <small>Portale privato per le segnalazioni e le comunicazioni del gruppo.</small>
 </footer>
+
+<dialog id="news-dialog" aria-labelledby="news-title">
+  <button id="close-news" class="close" aria-label="Chiudi Sala stampa">×</button>
+<section id="notizie" class="news-section">
+    <div class="section">
+      <div class="eyebrow">COMUNICAZIONI DAL GRUPPO</div>
+      <h2 id="news-title">Sala stampa</h2>
+      <p class="muted">
+        Notizie, comunicati e aggiornamenti con testo e immagini.
+      </p>
+      <div id="news" class="news-grid" aria-live="polite"></div>
+    </div>
+  </section>
+</dialog>
 
 <dialog id="admin-dialog">
   <button id="close-admin" class="close" aria-label="Chiudi">×</button>
@@ -544,6 +547,14 @@ dialog {
   color: var(--ink);
 }
 dialog::backdrop { background: #061e30bb; }
+#news-dialog { width: min(94vw, 1100px); padding: 0; }
+#news-dialog > .close { position: sticky; top: 10px; margin: 10px 16px 0 0; z-index: 1; }
+#news-dialog .news-section { border: 0; }
+#news-dialog .section { padding-top: 20px; }
+body.modal-open { overflow: hidden; }
+@media (min-width: 761px) and (max-width: 1000px) {
+  #news-dialog .news-grid { grid-template-columns: repeat(2, 1fr); }
+}
 .close { float: right; background: transparent; border: 0; font-size: 28px; }
 #news-form .outline { width: 100%; margin-top: 12px; }
 .remove {
@@ -908,6 +919,25 @@ $("#share").onclick = async () => {
   }
 };
 
+const newsDialog = $("#news-dialog");
+$("#open-news").onclick = event => {
+  event.preventDefault();
+  newsDialog.showModal();
+  document.body.classList.add("modal-open");
+  refresh();
+};
+$("#close-news").onclick = () => newsDialog.close();
+newsDialog.addEventListener("close", () => {
+  document.body.classList.remove("modal-open");
+});
+newsDialog.addEventListener("click", event => {
+  if (event.target !== newsDialog) return;
+  const rect = newsDialog.getBoundingClientRect();
+  if (event.clientX < rect.left || event.clientX > rect.right ||
+      event.clientY < rect.top || event.clientY > rect.bottom) {
+    newsDialog.close();
+  }
+});
 renderFilters();
 refresh();
 
